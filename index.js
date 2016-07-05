@@ -27,52 +27,54 @@ app.get('/', function(request, response){
 });
 
 app.post('/signup', function(request, response){
-     /* need to insert a new record in the datadate. will have to check first if a record exists */
+
+     console.log('*******************************************************************************************************************************************');
      var credentials = request.body;
      console.log('credentials = ' + credentials);
      console.log('credentials.username = ' + credentials.username);
      console.log('credentials.password = ' + credentials.password);
 
-     /* does the user exist? */
+     /* does the user already exist in the database? */
      User.findOne({username: credentials.username }, function(err, res) {
           if (err) {
                console.error(err.message);
                return;
           }
-          console.log('res = ', res);  /* res is the corresponding document in the database */
+          /* at this point, res is the corresponding document in the database - if there is one */
 
-          // console.log('stringify = ' + JSON.stringify(res).username);
-          //
-          //
-          //
-          // console.log('--------------------------');
-          // console.log(credentials.username);
-          // console.log(res.username);
-          // console.log('--------------------------');
-          //
-          // console.log(credentials.username === res.username);
-          // console.log(credentials.username + '    '  + res.username);
-          if (credentials.username === res.username) {
-               console.log('the user name is the same');
+          if (res === null) {
+               console.log('the requested user was not located in the database.  this is a new user');
+          } else if (credentials.username === res.username) {
+               console.log('the requested username [' + credentials.username + '] already exists');
                response.json({
                     "status": "fail",
-                    "message": "Username is taken"
+                    "message": "username already taken"
                });
+          } else {
+               console.log('there is some other error.  need to return some kind of error code');
           }
-          // else {
-          //      credentials.save(function(err) {
-          //           if (err) {
-          //                console.error(err.message);
-          //                console.error(err.errors);
-          //                return;
-          //           } else {
-          //                res.json({
-          //                     "status": "ok"
-          //                });
-          //           }
+
+          // if (credentials.username === res.username) {
+          //      console.log('the requested username [' + credentials.username + '] already exists');
+          //      response.json({
+          //           "status": "fail",
+          //           "message": "username already taken"
           //      });
-          //
-          //
+          // }
+          // else {
+          //      console.log(credentials);
+               // console.log('creating a new user with username [' + response.username + '] and password [' + response.password + ']');
+               // credentials.save(function(err) {
+               //      if (err) {
+               //           console.error(err.message);
+               //           console.error(err.errors);
+               //           return;
+               //      } else {
+               //           res.json({
+               //                "status": "ok"
+               //           });
+               //      }
+               // });
           // }
      });
 });
