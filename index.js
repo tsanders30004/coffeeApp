@@ -4,6 +4,7 @@ var User = require('./user');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
+var randomtoken = require('rand-token');     /* https://www.npmjs.com/package/rand-token */
 
 /* MongoDB Setup */
 mongoose.connect('mongodb://localhost/coffeeDb');
@@ -82,6 +83,8 @@ app.post('/signup', function(request, response){
           } else if (credentials._id === res._id) {
                /* The requested user already exists in the database */
                console.log('the requested username [' + credentials._id + '] already exists');
+               console.log('***** CONFIRM THAT WE ARE RETURNING THE CORRECT ERROR CODES *****');
+               response.status(409);
                response.json({
                     "status": "fail",
                     "message": "username already taken"
@@ -90,31 +93,90 @@ app.post('/signup', function(request, response){
                /* There is some other error. */
                console.log('there is some other error.  need to return some kind of error code');
           }
-
-          // if (credentials._id === res._id) {
-          //      console.log('the requested _id [' + credentials._id + '] already exists');
-          //      response.json({
-          //           "status": "fail",
-          //           "message": "username already taken"
-          //      });
-          // }
-          // else {
-          //      console.log(credentials);
-          // console.log('creating a new user with username [' + response.username + '] and password [' + response.password + ']');
-          // credentials.save(function(err) {
-          //      if (err) {
-          //           console.error(err.message);
-          //           console.error(err.errors);
-          //           return;
-          //      } else {
-          //           res.json({
-          //                "status": "ok"
-          //           });
-          //      }
-          // });
-          // }
      });
 });
+
+app.post('/login', function(request, response){
+     /* local variables */
+     var uid = '';       /*   used by rand-token */
+     var token = '';     /*   used by rand-token */
+
+     /* step 1: fetch the user's record from the database */
+     var credentials = request.body;
+
+     User.findOne({_id: credentials._id }, function(error, findResponse){
+          if(error){
+               console.log('an error occured while reading data for user [' + credentials._id + '] from the database]');
+               console.error(error.message);
+               return;
+          }
+
+          /* OK - we read the user.  Does the password match? use the bcrypt compare() method */
+          console.log('checking data for user [' + credentials._id + ']');
+
+          bcrypt.compare(credentials.password, findResponse.encryptedPassword, function(err, res) {
+               if (err) {
+                    console.log('and error occured comparing passwords');
+                    console.error(err.message);
+                    return;
+               }
+               if(!res) {
+                    /* password was incorrect */
+                    console.log('password was incorrect');
+                    /*
+                         need to send failure response with status code 409
+                         {
+                              "status" : "fail",
+                              "message" : "invalid user name or password"
+                         }
+                    */
+                    console.log('***** CONFIRM THAT WE ARE RETURNING THE CORRECT ERROR CODES *****');
+                    response.status(401);
+                    response.json({
+                         "status": "fail",
+                         "message": "invalid user name or password"
+                    });
+                    console.log('where to send user now?  do we need a return statement here?');
+               } else {
+                    /* password must have been correct */
+                    console.log('password was correct');
+
+                    /* need to generate a token */
+                    uid = require('rand-token').uid;         /*   used by rand-token */
+                    token = uid(64);                         /*   used by rand-token */
+
+                    /* store the token in the user's authenticationTokens array in the database */
+
+                    User.findByIdAndUpdate(
+                         credentials._id,
+                         { $push: { authenticationTokens:  {"token" : token, "expires" : "some expiration date" } } },
+                         function(err, reply) {
+                              if (err) {
+                                   console.error(err.message);
+                                   return;
+                              }
+                              console.log('Updated succeeded', reply);
+                              console.log('how to define the expiration date?');
+                         }
+                    );
+
+
+               }
+          });
+     });
+
+
+
+
+
+
+
+     /* step 2: need a random token.  see https://www.npmjs.com/package/rand-token */
+     uid = require('rand-token').uid;
+     token = uid(16);
+
+});
+
 
 app.listen(3000, function(){
      console.log('listening on port 3000');
