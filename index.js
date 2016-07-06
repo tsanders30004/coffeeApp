@@ -40,6 +40,7 @@ app.post('/signup', function(request, response){
 
      console.log('******************************************************************************************************************************');
      var credentials = request.body;
+
      console.log('credentials = ' + credentials);
      console.log('credentials._id = ' + credentials._id);
      console.log('credentials.password = ' + credentials.password);
@@ -79,6 +80,7 @@ app.post('/signup', function(request, response){
                          });
                     });
                });
+               response.send('ok');     /* postman will lock up unless you issue a response somewhere in this function */
 
           } else if (credentials._id === res._id) {
                /* The requested user already exists in the database */
@@ -89,6 +91,7 @@ app.post('/signup', function(request, response){
                     "status": "fail",
                     "message": "username already taken"
                });
+               return;
           } else {
                /* There is some other error. */
                console.log('there is some other error.  need to return some kind of error code');
@@ -103,6 +106,7 @@ app.post('/login', function(request, response){
 
      /* step 1: fetch the user's record from the database */
      var credentials = request.body;
+     response.send('ok');
 
      User.findOne({_id: credentials._id }, function(error, findResponse){
           if(error){
@@ -136,6 +140,7 @@ app.post('/login', function(request, response){
                          "status": "fail",
                          "message": "invalid user name or password"
                     });
+                    return;
                     console.log('where to send user now?  do we need a return statement here?');
                } else {
                     /* password must have been correct */
