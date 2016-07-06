@@ -194,7 +194,23 @@ app.post('/orders', function(request, response){
           }
           /* findOneResponse now returns the data returned from the database */
 
+          /* add the users orders */
+          findOneResponse.orders.push(orderData.order);     /* data is now in memory */
+          findOneResponse.save(function(err){
+               if(err){
+                    console.log('there was an error saving the order');
+                    console.log(err.errors);
+               }
+               /* there was no error */
+               response.json({
+                    status :  "ok",
+               });
+               response.send('ok');
+               return;
+          });
      });
+
+
 });
 
 app.listen(3000, function(){
