@@ -4,7 +4,6 @@ var mongoose = require('mongoose');
 
 var User = mongoose.model('User', {
      _id:                   { type: String, required: true},
-     username:              { type: String, required: true},
      encryptedPassword:     { type: String, required: true},
      authenticationTokens:
      [
