@@ -106,7 +106,7 @@ app.post('/login', function(request, response){
 
      /* step 1: fetch the user's record from the database */
      var credentials = request.body;
-     response.send('ok');
+     // response.send('ok');
 
      User.findOne({_id: credentials._id }, function(error, findResponse){
           if(error){
@@ -120,7 +120,7 @@ app.post('/login', function(request, response){
 
           bcrypt.compare(credentials.password, findResponse.encryptedPassword, function(err, res) {
                if (err) {
-                    console.log('and error occured comparing passwords');
+                    console.log('an error occured comparing passwords');
                     console.error(err.message);
                     return;
                }
@@ -128,47 +128,55 @@ app.post('/login', function(request, response){
                     /* password was incorrect */
                     console.log('password was incorrect');
                     /*
-                         need to send failure response with status code 409
-                         {
-                              "status" : "fail",
-                              "message" : "invalid user name or password"
-                         }
-                    */
-                    console.log('***** CONFIRM THAT WE ARE RETURNING THE CORRECT ERROR CODES *****');
-                    response.status(401);
-                    response.json({
-                         "status": "fail",
-                         "message": "invalid user name or password"
-                    });
-                    return;
-                    console.log('where to send user now?  do we need a return statement here?');
-               } else {
-                    /* password must have been correct */
-                    console.log('password was correct');
-
-                    /* need to generate a token */
-                    uid = require('rand-token').uid;         /*   used by rand-token */
-                    token = uid(64);                         /*   used by rand-token */
-
-                    /* store the token in the user's authenticationTokens array in the database */
-
-                    User.findByIdAndUpdate(
-                         credentials._id,
-                         { $push: { authenticationTokens:  {"token" : token, "expires" : "some expiration date" } } },
-                         function(err, reply) {
-                              if (err) {
-                                   console.error(err.message);
-                                   return;
-                              }
-                              console.log('Updated succeeded', reply);
-                              console.log('how to define the expiration date?');
-                         }
-                    );
-
-
+                    need to send failure response with status code 409
+                    {
+                    "status" : "fail",
+                    "message" : "invalid user name or password"
                }
-          });
+               */
+               console.log('***** CONFIRM THAT WE ARE RETURNING THE CORRECT ERROR CODES *****');
+               response.status(401);
+               response.json({
+                    "status": "fail",
+                    "message": "invalid user name or password"
+               });
+               return;
+               console.log('where to send user now?  do we need a return statement here?');
+          } else {
+               /* password must have been correct */
+               console.log('password was correct');
+
+               /* need to generate a token */
+               uid = require('rand-token').uid;         /*   used by rand-token */
+               token = uid(64);                         /*   used by rand-token */
+
+               /* store the token in the user's authenticationTokens array in the database */
+
+               /* how to get ten days from now? */
+
+               var expirationDate = new Date();
+               expirationDate.setDate(expirationDate.getDate() + 10);
+
+               User.findByIdAndUpdate(
+                    credentials._id,
+                    { $push: { authenticationTokens:  {"token" : token, "expires" : expirationDate } } },
+                    function(err, reply) {
+                         if (err) {
+                              console.error(err.message);
+                              return;
+                         }
+                         console.log('Updated succeeded', reply);
+                    }
+               );
+
+               response.status(200);
+               response.json({
+                    "status": "ok",
+                    "token": token
+               });
+          }
      });
+});
 
 
 
@@ -176,9 +184,9 @@ app.post('/login', function(request, response){
 
 
 
-     /* step 2: need a random token.  see https://www.npmjs.com/package/rand-token */
-     uid = require('rand-token').uid;
-     token = uid(16);
+/* step 2: need a random token.  see https://www.npmjs.com/package/rand-token */
+uid = require('rand-token').uid;
+token = uid(16);
 
 });
 

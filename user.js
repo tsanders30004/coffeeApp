@@ -26,7 +26,7 @@ var User = mongoose.model('User', {
                     "city":          {type: String, required: true},
                     "state":         {type: String, required: true},
                     "zipCode":       {type: String, required: true},
-                    "deliveryDate":  {type: String, required: true}
+                    "deliveryDate":  {type: Date, required: true}
                }
           }
      ]
