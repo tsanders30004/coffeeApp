@@ -10,7 +10,7 @@ var randomtoken = require('rand-token');     /* https://www.npmjs.com/package/ra
 mongoose.connect('mongodb://localhost/coffeeDb');
 
 /* bcrypt Setup */
-var saltRounds = 10;
+const saltRounds = 10;
 var myEncryptedPassword = '';
 
 
@@ -106,7 +106,7 @@ app.post('/login', function(request, response){
 
      /* step 1: fetch the user's record from the database */
      var credentials = request.body;
-     // response.send('ok');
+     response.send('ok');
 
      User.findOne({_id: credentials._id }, function(error, findResponse){
           if(error){
@@ -141,6 +141,7 @@ app.post('/login', function(request, response){
                     "message": "invalid user name or password"
                });
                return;
+               console.log('where to send user now?  do we need a return statement here?');
           } else {
                /* password must have been correct */
                console.log('password was correct');
@@ -177,15 +178,9 @@ app.post('/login', function(request, response){
      });
 });
 
+/* ------------------------------------------------------------------------------------------------------- */
 
 
-
-
-
-
-
-
-});
 
 
 app.listen(3000, function(){

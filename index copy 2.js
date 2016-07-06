@@ -10,7 +10,7 @@ var randomtoken = require('rand-token');     /* https://www.npmjs.com/package/ra
 mongoose.connect('mongodb://localhost/coffeeDb');
 
 /* bcrypt Setup */
-var saltRounds = 10;
+const saltRounds = 10;
 var myEncryptedPassword = '';
 
 
@@ -183,7 +183,9 @@ app.post('/login', function(request, response){
 
 
 
-
+/* step 2: need a random token.  see https://www.npmjs.com/package/rand-token */
+uid = require('rand-token').uid;
+token = uid(16);
 
 });
 
