@@ -167,6 +167,7 @@ app.post('/login', function(request, response){
                          console.log('Updated succeeded', reply);
                     }
                );
+               /* and easier way would have been to */
 
                response.status(200);
                response.json({
@@ -177,16 +178,24 @@ app.post('/login', function(request, response){
      });
 });
 
-
-
-
-
-
-
-
-
 });
 
+/* ------------------------------------------------------- */
+
+app.post('/orders', function(request, response){
+     // console.log(response);
+     var orderData = request.body;
+
+     User.findOne({"authenticationTokens.token" : orderData.token}, function(error, findOneResponse){
+          if (error) {
+               console.log('error was found searching for the token');
+               console.log(error.message);
+               return;
+          }
+          /* findOneResponse now returns the data returned from the database */
+
+     });
+});
 
 app.listen(3000, function(){
      console.log('listening on port 3000');
