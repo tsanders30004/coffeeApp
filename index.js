@@ -209,7 +209,23 @@ app.post('/orders', function(request, response){
                return;
           });
      });
+});
 
+app.get('/orders', function(request, response){
+     /* step 1:  get the query parameter */
+     var tokenData = request.query.token;
+
+     /* get the user for whom the token was provided */
+
+     User.findOne({"authenticationTokens.token" : tokenData}, function(error, findOneResponse){
+          if (error) {
+               console.log('user with token [' + tokenData + '] not found...');
+               console.log(error.message);
+               return;
+          }
+          console.log(findOneResponse.orders);
+          response.json(findOneResponse.orders);
+     });
 
 });
 
