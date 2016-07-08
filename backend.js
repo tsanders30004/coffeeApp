@@ -38,14 +38,30 @@ var coffeeOptions = [
      "Fine",
      "Extra fine"
 ];
+
+var grindDecision = {};
+var deliveryOptions = [];
+var individualPackage = [];
+
 var myNewUser;
 
-/* Routes */
+/* Routing to options on the frontend */
 app.get('/options', function(request, response){
      response.json(coffeeOptions);
 });
 
+
+
+/* Routing to deliveries on the frontend */
+app.post('/deliveries', function(request, response){
+     response.json(individualPackage);
+});
+
 app.post('/signup', function(request, response){
+
+
+
+
 
      console.log('******************************************************************************************************************************');
      var credentials = request.body;
