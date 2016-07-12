@@ -140,6 +140,16 @@ app.post('/login', function(request, response){
                return;
           }
 
+          if(findResponse === null) {
+               console.log('***** CONFIRM THAT WE ARE RETURNING THE CORRECT ERROR CODES *****');
+               response.status(401);
+               response.json({
+                    "status": "fail",
+                    "message": "user does not exist"
+               });
+               return;
+          }
+
           /* OK - we read the user.  Does the password match? use the bcrypt compare() method */
           console.log('checking data for user [' + credentials._id + ']');
 
